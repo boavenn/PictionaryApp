@@ -7,13 +7,13 @@ import java.awt.*;
 
 public abstract class CustomPanel extends JPanel
 {
-    protected ConnectionManager connection_manager;
+    protected ConnectionManager connectionManager;
 
-    public CustomPanel(int width, int height, Color bg_color, Color fg_color)
+    public CustomPanel(int width, int height, Color bgColor, Color fgColor)
     {
         this.setPreferredSize(new Dimension(width, height));
-        this.setBackground(bg_color);
-        this.setForeground(fg_color);
+        this.setBackground(bgColor);
+        this.setForeground(fgColor);
         this.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
     }
 }

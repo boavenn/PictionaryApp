@@ -4,8 +4,8 @@ import java.awt.*;
 
 public class ChatPanel extends CustomPanel
 {
-    public ChatPanel(int width, int height, Color bg_color, Color fg_color)
+    public ChatPanel(int width, int height, Color bgColor, Color fgColor)
     {
-        super(width, height, bg_color, fg_color);
+        super(width, height, bgColor, fgColor);
     }
 }

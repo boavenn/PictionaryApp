@@ -4,8 +4,8 @@ import java.awt.*;
 
 public class PlayersPanel extends CustomPanel
 {
-    public PlayersPanel(int width, int height, Color bg_color, Color fg_color)
+    public PlayersPanel(int width, int height, Color bgColor, Color fgColor)
     {
-        super(width, height, bg_color, fg_color);
+        super(width, height, bgColor, fgColor);
     }
 }
