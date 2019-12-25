@@ -7,7 +7,7 @@ import java.awt.*;
 
 @Data
 @AllArgsConstructor
-public abstract class Shape implements Drawable
+public abstract class Shape
 {
     protected Color color;
     protected Point startingPoint;
@@ -26,6 +26,8 @@ public abstract class Shape implements Drawable
         this.stroke = stroke;
         this.type = type;
     }
+
+    public abstract void draw(Graphics2D g);
 
     public boolean isReady()
     {

@@ -5,6 +5,7 @@ import client.app.shapes.Ellipse;
 import client.app.shapes.Line;
 import client.app.shapes.Pencil;
 import client.app.shapes.Rectangle;
+import lombok.Setter;
 
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
@@ -13,15 +14,14 @@ import java.awt.*;
 
 public class ToolPanel extends CustomPanel
 {
-    private PaintPanel paintPanel;
+    private @Setter PaintPanel paintPanel;
     private JColorChooser colorChooser;
     private int currentStroke = 1;
     private final int ICON_SIZE = 40;
 
-    public ToolPanel(int width, int height, Color bgColor, Color fgColor, PaintPanel paintPanel)
+    public ToolPanel(int width, int height, Color bgColor, Color fgColor)
     {
         super(width, height, bgColor, fgColor);
-        this.paintPanel = paintPanel;
 
         colorChooser = new JColorChooser();
         colorChooser.setPreviewPanel(new JPanel());

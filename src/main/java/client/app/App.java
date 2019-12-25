@@ -18,6 +18,7 @@ public class App
     private final WordPanel wordPanel;
     private final PaintPanel paintPanel;
     private final PlayersPanel playersPanel;
+    private final JoinCreatePanel joinCreatePanel;
     private final ChatPanel chatPanel;
 
     private class Section extends JPanel
@@ -39,28 +40,37 @@ public class App
         frame.setResizable(false);
         frame.getContentPane().setBackground(BG_COLOR);
 
-        int width = WIDTH * 60 / 100;
+        int width = WIDTH * 15 / 100;
+        Section left_section = new Section(width, HEIGHT);
+        toolPanel = new ToolPanel(width, HEIGHT * 99 / 100, COMP_COLOR, Color.BLACK);
+        left_section.add(toolPanel);
+
+        width = WIDTH * 60 / 100;
         Section mid_section = new Section(width, HEIGHT);
         wordPanel = new WordPanel(width, HEIGHT * 15 / 100, COMP_COLOR, Color.BLACK);
         paintPanel = new PaintPanel(width, (HEIGHT - GAP) * 84 / 100, Color.WHITE, Color.BLACK);
         mid_section.add(wordPanel);
         mid_section.add(paintPanel);
 
-        width = WIDTH * 15 / 100;
-        Section left_section = new Section(width, HEIGHT);
-        toolPanel = new ToolPanel(width, HEIGHT * 99 / 100, COMP_COLOR, Color.BLACK, paintPanel);
-        left_section.add(toolPanel);
-
         width = WIDTH * 20 / 100;
         Section right_section = new Section(width, HEIGHT);
         playersPanel = new PlayersPanel(width, HEIGHT * 20 / 100, COMP_COLOR, Color.BLACK);
+        joinCreatePanel = new JoinCreatePanel(width, HEIGHT * 20 / 100, COMP_COLOR, Color.BLACK);
         chatPanel = new ChatPanel(width, (HEIGHT - GAP) * 79 / 100 - 1, COMP_COLOR, Color.BLACK);
         right_section.add(playersPanel);
+        right_section.add(joinCreatePanel);
         right_section.add(chatPanel);
+
+        toolPanel.setPaintPanel(paintPanel);
+        joinCreatePanel.setPlayersPanel(playersPanel);
+        joinCreatePanel.setPaintPanel(paintPanel);
+        playersPanel.setJoinCreatePanel(joinCreatePanel);
 
         frame.add(left_section);
         frame.add(mid_section);
         frame.add(right_section);
+
+        joinCreatePanel.makeVisible();
 
         frame.pack();
         frame.setLocationRelativeTo(null);
