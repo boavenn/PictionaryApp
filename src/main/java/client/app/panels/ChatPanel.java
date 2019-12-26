@@ -1,7 +1,6 @@
 package client.app.panels;
 
 import client.app.util.ChatEntry;
-import lombok.Getter;
 import lombok.Setter;
 
 import javax.swing.*;
@@ -21,10 +20,10 @@ public class ChatPanel extends CustomPanel
         chat.setFont(new Font("monospace", Font.BOLD, 12));
         chat.setCellRenderer(new MyCellRenderer(ChatEntry.getEntryWidth()));
 
-        JScrollPane scroll_pane = new JScrollPane(chat);
-        scroll_pane.setPreferredSize(new Dimension(width - 20, height - 40 ));
-        scroll_pane.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-        this.add(scroll_pane);
+        JScrollPane scrollPane = new JScrollPane(chat);
+        scrollPane.setPreferredSize(new Dimension(width - 20, height - 40 ));
+        scrollPane.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        this.add(scrollPane);
 
         JTextField input_area = new JTextField();
         input_area.setPreferredSize(new Dimension(width - 20, 20));
@@ -33,7 +32,7 @@ public class ChatPanel extends CustomPanel
         {
             if(!input_area.getText().isEmpty())
             {
-                listModel.addElement(new ChatEntry("#you", input_area.getText(), ChatEntry.Type.USER));
+                listModel.addElement(new ChatEntry(">>", input_area.getText(), ChatEntry.Type.USER));
                 input_area.setText("");
             }
         });
