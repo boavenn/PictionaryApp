@@ -1,9 +1,13 @@
 package client.app;
 
+import client.app.net.ConnectionManager;
 import client.app.panels.*;
+import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class App
 {
@@ -14,12 +18,13 @@ public class App
     private final Color BG_COLOR = Color.BLACK;
     private final Color COMP_COLOR = Color.LIGHT_GRAY;
     private final String TITLE = "Pictionary";
-    private final ToolPanel toolPanel;
-    private final WordPanel wordPanel;
-    private final PaintPanel paintPanel;
-    private final PlayersPanel playersPanel;
-    private final JoinCreatePanel joinCreatePanel;
-    private final ChatPanel chatPanel;
+    private final @Getter ToolPanel toolPanel;
+    private final @Getter WordPanel wordPanel;
+    private final @Getter PaintPanel paintPanel;
+    private final @Getter PlayersPanel playersPanel;
+    private final @Getter JoinCreatePanel joinCreatePanel;
+    private final @Getter ChatPanel chatPanel;
+    private final ConnectionManager connectionManager;
 
     private class Section extends JPanel
     {
@@ -36,9 +41,20 @@ public class App
         frame = new JFrame(TITLE);
         frame.setSize(new Dimension(WIDTH, HEIGHT));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+                if(connectionManager.isConnected())
+                    connectionManager.sendQuitMessage();
+            }
+        });
         frame.setLayout(new FlowLayout(FlowLayout.CENTER, GAP, GAP));
         frame.setResizable(false);
         frame.getContentPane().setBackground(BG_COLOR);
+
+        connectionManager = new ConnectionManager(this);
 
         int width = WIDTH * 15 / 100;
         Section left_section = new Section(width, HEIGHT);

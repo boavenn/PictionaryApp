@@ -1,6 +1,6 @@
 package client.app.panels;
 
-import client.app.util.ConnectionManager;
+import client.app.net.ConnectionManager;
 
 import javax.swing.*;
 import java.awt.*;

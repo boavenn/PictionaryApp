@@ -18,6 +18,7 @@ public class ToolPanel extends CustomPanel
     private JColorChooser colorChooser;
     private int currentStroke = 1;
     private final int ICON_SIZE = 40;
+    private JLabel connectionStatus;
 
     public ToolPanel(int width, int height, Color bgColor, Color fgColor)
     {
@@ -141,5 +142,22 @@ public class ToolPanel extends CustomPanel
         clear.setToolTipText("Clear");
         clear.setFocusPainted(false);
         this.add(clear);
+
+        connectionStatus = new JLabel("No connection");
+        connectionStatus.setForeground(Color.RED);
+        this.add(connectionStatus);
+    }
+
+    public void changeConnectionStatus()
+    {
+        if(connectionStatus.getForeground().equals(Color.RED))
+        {
+            connectionStatus.setText("Connected");
+            connectionStatus.setForeground(Color.GREEN);
+        } else
+        {
+            connectionStatus.setText("No connection");
+            connectionStatus.setForeground(Color.RED);
+        }
     }
 }

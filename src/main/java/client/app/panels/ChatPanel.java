@@ -32,21 +32,28 @@ public class ChatPanel extends CustomPanel
         {
             if(!input_area.getText().isEmpty())
             {
-                listModel.addElement(new ChatEntry(">>", input_area.getText(), ChatEntry.Type.USER));
+                listModel.addElement(new ChatEntry(">>", input_area.getText()));
                 input_area.setText("");
             }
         });
         this.add(input_area);
     }
 
+    public void addSystemEntry(String text)
+    {
+        listModel.addElement(new ChatEntry("~SYSTEM", text));
+    }
+
+    public void addErrorEntry(String text)
+    {
+        listModel.addElement(new ChatEntry("~ERROR", text));
+    }
+
     public static class MyCellRenderer extends DefaultListCellRenderer
     {
         private static final String HTML_1 = "<html><body style='width: ";
-        private static final String HTML_2 = "px;";
-        private static final String HTML_3 = "color:";
-        private static final String HTML_4 = "'>";
-        private static final String HTML_5 = "</html>";
-        private static @Setter String color;
+        private static final String HTML_2 = "px'>";
+        private static final String HTML_3 = "</html>";
         private int width;
 
         public MyCellRenderer(int width)
@@ -57,7 +64,7 @@ public class ChatPanel extends CustomPanel
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus)
         {
-            String text = HTML_1 + width + HTML_2 + HTML_3 + color + HTML_4 + value.toString() + HTML_5;
+            String text = HTML_1 + width + HTML_2 + value.toString() + HTML_3;
             return super.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
         }
     }
