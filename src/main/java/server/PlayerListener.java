@@ -1,5 +1,7 @@
 package server;
 
+import lombok.Getter;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -7,8 +9,8 @@ import java.io.IOException;
 public class PlayerListener implements Runnable
 {
     private Player player;
-    private DataOutputStream out;
-    private DataInputStream in;
+    private @Getter DataOutputStream out;
+    private @Getter DataInputStream in;
     private Room room;
     private boolean connected = true;
 

@@ -32,6 +32,11 @@ public class JoinCreatePanel extends CustomPanel
         join.setBackground(Color.WHITE);
         join.setFont(new Font("monospace", Font.BOLD, 16));
         join.setFocusPainted(false);
+        join.addActionListener(e ->
+        {
+            if(connectionManager.isConnected())
+                connectionManager.sendRoomViewRequest();
+        });
         this.add(join);
     }
 

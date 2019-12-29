@@ -4,6 +4,7 @@ import client.app.App;
 import lombok.Getter;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -57,5 +58,10 @@ public class ConnectionManager
             if(!((c >= 65 && c <= 90) || (c >= 97 && c <= 122) || (c >= 48 && c <= 57)))
                 return false;
         return true;
+    }
+
+    public void sendRoomViewRequest()
+    {
+        connectionChecker.getServerListener().sendRoomViewRequest();
     }
 }

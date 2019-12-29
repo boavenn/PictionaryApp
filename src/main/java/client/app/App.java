@@ -96,4 +96,19 @@ public class App
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
+
+    public int showRoomList(String[] list)
+    {
+        String temp = (String) JOptionPane.showInputDialog(null, "Choose a room to join",
+                "Room list", JOptionPane.QUESTION_MESSAGE, null, list, list[0]);
+        int id;
+        if(temp != null)
+        {
+            id = Integer.parseInt(temp.substring(0, temp.indexOf('.')));
+            System.out.println(id);
+        }
+        else
+            id = -1;
+        return id;
+    }
 }

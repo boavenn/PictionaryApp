@@ -1,5 +1,6 @@
 package client.app.net;
 
+import com.google.gson.Gson;
 import lombok.Getter;
 
 import java.io.DataInputStream;
@@ -14,6 +15,8 @@ public class ServerListener implements Runnable
     private ConnectionManager connectionManager;
     private boolean connected = true;
     private @Getter boolean connectedToARoom = false;
+    private Gson gson = new Gson();
+    private int chosenID;
 
     public ServerListener(ConnectionManager connectionManager, Socket socket)
     {
@@ -72,6 +75,42 @@ public class ServerListener implements Runnable
                         else
                             connectionManager.getApp().getChatPanel().addErrorEntry(in.readUTF());
                         break;
+                    case 2: // room view response
+                        flag = in.readBoolean();
+                        if(flag)
+                        {
+                            String[] roomInfo = gson.fromJson(in.readUTF(), String[].class);
+                            chosenID = connectionManager.getApp().showRoomList(roomInfo);
+                            if (chosenID != -1)
+                            {
+                                sendRoomJoinRequest(chosenID);
+                                connectionManager.getApp().getChatPanel().addSystemEntry("Trying to join a room [" + chosenID + "] ...");
+                            }
+                        }
+                        else
+                            connectionManager.getApp().getChatPanel().addErrorEntry(in.readUTF());
+                        break;
+                    case 3: // room join response
+                        flag = in.readBoolean();
+                        if(flag)
+                        {
+                            connectionManager.getApp().getToolPanel().showRoomInfo(chosenID);
+                            connectionManager.getApp().getPlayersPanel().makeVisible();
+                            connectionManager.getApp().getChatPanel().addSystemEntry("Successfully joined");
+                            connectedToARoom = true;
+                        }
+                        else
+                            connectionManager.getApp().getChatPanel().addErrorEntry(in.readUTF());
+                        break;
+                    case 4: // room status update
+                        String[] players = gson.fromJson(in.readUTF(), String[].class);
+                        int[] points = gson.fromJson(in.readUTF(), int[].class);
+                        connectionManager.getApp().getPlayersPanel().setPlayers(players, points);
+                        break;
+                    case 5: // message
+                        String message = in.readUTF();
+                        connectionManager.getApp().getChatPanel().addSystemEntry(message);
+                        break;
                 }
             }
         } catch (IOException e)
@@ -96,6 +135,29 @@ public class ServerListener implements Runnable
         try
         {
             out.writeByte(1);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendRoomViewRequest()
+    {
+        try
+        {
+            out.writeByte(2);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendRoomJoinRequest(int roomID)
+    {
+        try
+        {
+            out.writeByte(3);
+            out.writeInt(roomID);
         } catch (IOException e)
         {
             e.printStackTrace();

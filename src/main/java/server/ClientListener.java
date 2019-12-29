@@ -1,9 +1,12 @@
 package server;
 
+import com.google.gson.Gson;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Map;
 
 public class ClientListener implements Runnable
 {
@@ -15,6 +18,7 @@ public class ClientListener implements Runnable
     boolean connected = true;
     private String nickname;
     private int id;
+    private Gson gson = new Gson();
 
     public ClientListener(Server server, Socket client, int id)
     {
@@ -95,18 +99,44 @@ public class ClientListener implements Runnable
                             }
                         }
                         break;
-                    case 2: // joining a room / sending client a list of available rooms
-                        // update rooms
-                        // send the list of rooms
+                    case 2: // room view request
+                        synchronized (this)
+                        {
+                            out.writeByte(2);
+                            if(server.getRooms().size() > 0)
+                            {
+                                out.writeBoolean(true);
+                                String[] roomInfo = new String[server.getRooms().size()];
+                                int i = 0;
+                                for (Map.Entry<Integer, Room> entry : server.getRooms().entrySet())
+                                    roomInfo[i++] = entry.getValue().toString();
+                                out.writeUTF(gson.toJson(roomInfo));
+                            }
+                            else
+                            {
+                                out.writeBoolean(false);
+                                out.writeUTF("No rooms available");
+                            }
+                        }
                         break;
-                    case 3: // client chose a room
-                        // update chosen room and check once more if the room is available
-                        // if yes ask client for a nickname and add him to the room
-                        break;
-                    case 4: // client sent a nickname
-                        // check if player with such name already exist
-                        // if no add this player to the list of players
-                        // set connectedToARoom = true
+                    case 3: // room join request
+                        int roomID = in.readInt();
+                        synchronized (this)
+                        {
+                            out.writeByte(3);
+                            if(!server.getRooms().get(roomID).isFull())
+                            {
+                                out.writeBoolean(true);
+                                server.getRooms().get(roomID).addPlayer(new Player(nickname, socket, id));
+                                server.getClientListeners().remove(id);
+                                connectedToARoom = true;
+                            }
+                            else
+                            {
+                                out.writeBoolean(false);
+                                out.writeUTF("Chosen room is already full");
+                            }
+                        }
                         break;
                 }
             }
