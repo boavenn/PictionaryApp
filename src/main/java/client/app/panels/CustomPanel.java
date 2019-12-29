@@ -9,7 +9,7 @@ public abstract class CustomPanel extends JPanel
 {
     protected ConnectionManager connectionManager;
 
-    public CustomPanel(int width, int height, Color bgColor, Color fgColor)
+    public CustomPanel(int width, int height, Color bgColor, Color fgColor, ConnectionManager connectionManager)
     {
         this.setPreferredSize(new Dimension(width, height));
         this.setBackground(bgColor);

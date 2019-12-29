@@ -1,5 +1,6 @@
 package client.app.panels;
 
+import client.app.net.ConnectionManager;
 import client.app.util.ChatEntry;
 import lombok.Setter;
 
@@ -10,9 +11,9 @@ public class ChatPanel extends CustomPanel
 {
     private DefaultListModel<ChatEntry> listModel;
 
-    public ChatPanel(int width, int height, Color bgColor, Color fgColor)
+    public ChatPanel(int width, int height, Color bgColor, Color fgColor, ConnectionManager connectionManager)
     {
-        super(width, height, bgColor, fgColor);
+        super(width, height, bgColor, fgColor, connectionManager);
         ChatEntry.setEntryWidth(width - 65);
 
         listModel = new DefaultListModel<>();

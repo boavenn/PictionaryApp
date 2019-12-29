@@ -32,6 +32,11 @@ public class ConnectionManager
         connectionChecker.getServerListener().sendQuitMessage();
     }
 
+    public void sendRoomCreationRequest()
+    {
+        connectionChecker.getServerListener().sendRoomCreationRequest();
+    }
+
     public void setNickname()
     {
         boolean nicknameValid = false;

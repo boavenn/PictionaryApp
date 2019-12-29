@@ -47,7 +47,11 @@ public class App
             public void windowClosing(WindowEvent e)
             {
                 if(connectionManager.isConnected())
+                {
                     connectionManager.sendQuitMessage();
+                    if(connectionManager.getConnectionChecker().getServerListener().isConnectedToARoom())
+                        connectionManager.sendQuitMessage(); // we are sending it twice if we are already in a room
+                }
             }
         });
         frame.setLayout(new FlowLayout(FlowLayout.CENTER, GAP, GAP));
@@ -58,21 +62,21 @@ public class App
 
         int width = WIDTH * 15 / 100;
         Section left_section = new Section(width, HEIGHT);
-        toolPanel = new ToolPanel(width, HEIGHT * 99 / 100, COMP_COLOR, Color.BLACK);
+        toolPanel = new ToolPanel(width, HEIGHT * 99 / 100, COMP_COLOR, Color.BLACK, connectionManager);
         left_section.add(toolPanel);
 
         width = WIDTH * 60 / 100;
         Section mid_section = new Section(width, HEIGHT);
-        wordPanel = new WordPanel(width, HEIGHT * 15 / 100, COMP_COLOR, Color.BLACK);
-        paintPanel = new PaintPanel(width, (HEIGHT - GAP) * 84 / 100, Color.WHITE, Color.BLACK);
+        wordPanel = new WordPanel(width, HEIGHT * 15 / 100, COMP_COLOR, Color.BLACK, connectionManager);
+        paintPanel = new PaintPanel(width, (HEIGHT - GAP) * 84 / 100, Color.WHITE, Color.BLACK, connectionManager);
         mid_section.add(wordPanel);
         mid_section.add(paintPanel);
 
         width = WIDTH * 20 / 100;
         Section right_section = new Section(width, HEIGHT);
-        playersPanel = new PlayersPanel(width, HEIGHT * 20 / 100, COMP_COLOR, Color.BLACK);
-        joinCreatePanel = new JoinCreatePanel(width, HEIGHT * 20 / 100, COMP_COLOR, Color.BLACK);
-        chatPanel = new ChatPanel(width, (HEIGHT - GAP) * 79 / 100 - 1, COMP_COLOR, Color.BLACK);
+        playersPanel = new PlayersPanel(width, HEIGHT * 20 / 100, COMP_COLOR, Color.BLACK, connectionManager);
+        joinCreatePanel = new JoinCreatePanel(width, HEIGHT * 20 / 100, COMP_COLOR, Color.BLACK, connectionManager);
+        chatPanel = new ChatPanel(width, (HEIGHT - GAP) * 79 / 100 - 1, COMP_COLOR, Color.BLACK, connectionManager);
         right_section.add(playersPanel);
         right_section.add(joinCreatePanel);
         right_section.add(chatPanel);

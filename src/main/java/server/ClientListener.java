@@ -7,6 +7,7 @@ import java.net.Socket;
 
 public class ClientListener implements Runnable
 {
+    private Socket socket;
     private Server server;
     private DataInputStream in;
     private DataOutputStream out;
@@ -15,10 +16,12 @@ public class ClientListener implements Runnable
     private String nickname;
     private int id;
 
-    public ClientListener(Server server, Socket client, int id)
+    public ClientListener(Server server, Socket client, int id, String nickname)
     {
         this.server = server;
+        this.socket = client;
         this.id = id;
+        this.nickname = nickname;
         try
         {
             this.out = new DataOutputStream(client.getOutputStream());
@@ -32,7 +35,9 @@ public class ClientListener implements Runnable
     @Override
     public void run()
     {
-        boolean nicknameSet = false;
+        boolean nicknameSet = true;
+        if(nickname.isEmpty())
+            nicknameSet = false;
         try
         {
             while(!nicknameSet)
@@ -61,12 +66,29 @@ public class ClientListener implements Runnable
                         connected = false;
                         server.getTakenNicknames().remove(nickname);
                         server.getTakenPlayerIDs().replace(id, false);
-                        server.getClientStatus().remove(id);
-                        server.getClientListeners().remove(id);
+                        server.removeClient(id);
                         break;
-                    case 1: // room creation
-                        // update rooms <- maybe do it in server directly?
-                        // create a new one
+                    case 1: // room creation request
+                        out.writeByte(1);
+                        synchronized (this)
+                        {
+                            if(server.getRooms().size() < server.getROOM_MAX())
+                            {
+                                out.writeBoolean(true);
+                                int roomID = server.assignRoomID();
+                                out.writeInt(roomID);
+                                Room room = new Room(server, new Player(nickname, socket, id), roomID);
+                                server.getRooms().put(roomID, room);
+                                server.getRoomStatus().put(roomID, server.getRoomExecutor().submit(room));
+                                server.removeClient(id);
+                                connectedToARoom = true;
+                            }
+                            else
+                            {
+                                out.writeBoolean(false);
+                                out.writeUTF("Not enough space for making a new room");
+                            }
+                        }
                         break;
                     case 2: // joining a room / sending client a list of available rooms
                         // update rooms
@@ -89,8 +111,7 @@ public class ClientListener implements Runnable
             if(nicknameSet)
                 server.getTakenNicknames().remove(nickname);
             server.getTakenPlayerIDs().replace(id, false);
-            server.getClientStatus().remove(id);
-            server.getClientListeners().remove(id);
+            server.removeClient(id);
         }
     }
 

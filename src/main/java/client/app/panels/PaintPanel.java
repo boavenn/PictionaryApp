@@ -1,5 +1,6 @@
 package client.app.panels;
 
+import client.app.net.ConnectionManager;
 import client.app.shapes.Shape;
 import client.app.shapes.Ellipse;
 import client.app.shapes.Line;
@@ -23,9 +24,9 @@ public class PaintPanel extends CustomPanel
     private final int IMG_WIDTH;
     private final int IMG_HEIGHT;
 
-    public PaintPanel(int width, int height, Color bgColor, Color fgColor)
+    public PaintPanel(int width, int height, Color bgColor, Color fgColor, ConnectionManager connectionManager)
     {
-        super(width, height, bgColor, fgColor);
+        super(width, height, bgColor, fgColor, connectionManager);
         IMG_WIDTH = getPreferredSize().width;
         IMG_HEIGHT = getPreferredSize().height;
 

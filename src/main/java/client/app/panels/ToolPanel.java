@@ -1,5 +1,6 @@
 package client.app.panels;
 
+import client.app.net.ConnectionManager;
 import client.app.shapes.Shape;
 import client.app.shapes.Ellipse;
 import client.app.shapes.Line;
@@ -19,10 +20,11 @@ public class ToolPanel extends CustomPanel
     private int currentStroke = 1;
     private final int ICON_SIZE = 40;
     private JLabel connectionStatus;
+    private JLabel roomID;
 
-    public ToolPanel(int width, int height, Color bgColor, Color fgColor)
+    public ToolPanel(int width, int height, Color bgColor, Color fgColor, ConnectionManager connectionManager)
     {
-        super(width, height, bgColor, fgColor);
+        super(width, height, bgColor, fgColor, connectionManager);
 
         colorChooser = new JColorChooser();
         colorChooser.setPreviewPanel(new JPanel());
@@ -145,7 +147,15 @@ public class ToolPanel extends CustomPanel
 
         connectionStatus = new JLabel("No connection");
         connectionStatus.setForeground(Color.RED);
+        connectionStatus.setPreferredSize(new Dimension(150, 20));
+        connectionStatus.setHorizontalAlignment(SwingConstants.CENTER);
         this.add(connectionStatus);
+
+        roomID = new JLabel();
+        roomID.setVisible(false);
+        roomID.setPreferredSize(new Dimension(150, 20));
+        roomID.setHorizontalAlignment(SwingConstants.CENTER);
+        this.add(roomID);
     }
 
     public void changeConnectionStatus()
@@ -159,5 +169,16 @@ public class ToolPanel extends CustomPanel
             connectionStatus.setText("No connection");
             connectionStatus.setForeground(Color.RED);
         }
+    }
+
+    public void showRoomInfo(int id)
+    {
+        roomID.setVisible(true);
+        roomID.setText("Room ID = " + id);
+    }
+
+    public void hideRoomInfo()
+    {
+        roomID.setVisible(false);
     }
 }

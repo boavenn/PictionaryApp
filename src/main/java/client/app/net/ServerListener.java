@@ -1,5 +1,7 @@
 package client.app.net;
 
+import lombok.Getter;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -11,6 +13,7 @@ public class ServerListener implements Runnable
     private DataInputStream in;
     private ConnectionManager connectionManager;
     private boolean connected = true;
+    private @Getter boolean connectedToARoom = false;
 
     public ServerListener(ConnectionManager connectionManager, Socket socket)
     {
@@ -53,6 +56,22 @@ public class ServerListener implements Runnable
                         connected = false;
                         connectionManager.getConnectionChecker().disconnect();
                         break;
+                    case 1: // room creation response
+                        boolean flag = in.readBoolean();
+                        if(flag)
+                        {
+                            int roomID = in.readInt();
+                            connectionManager.getApp().getToolPanel().showRoomInfo(roomID);
+                            connectionManager.getApp().getChatPanel().addSystemEntry("Successfully created a room [" + roomID + "]");
+                            String[] players = {connectionManager.getNickname()};
+                            int[] points = {0};
+                            connectionManager.getApp().getPlayersPanel().setPlayers(players, points);
+                            connectionManager.getApp().getPlayersPanel().makeVisible();
+                            connectedToARoom = true;
+                        }
+                        else
+                            connectionManager.getApp().getChatPanel().addErrorEntry(in.readUTF());
+                        break;
                 }
             }
         } catch (IOException e)
@@ -66,6 +85,17 @@ public class ServerListener implements Runnable
         try
         {
             out.writeByte(0);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendRoomCreationRequest()
+    {
+        try
+        {
+            out.writeByte(1);
         } catch (IOException e)
         {
             e.printStackTrace();
