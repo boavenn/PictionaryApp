@@ -16,12 +16,12 @@ public class ClientListener implements Runnable
     private String nickname;
     private int id;
 
-    public ClientListener(Server server, Socket client, int id, String nickname)
+    public ClientListener(Server server, Socket client, int id)
     {
         this.server = server;
         this.socket = client;
         this.id = id;
-        this.nickname = nickname;
+        this.nickname = "";
         try
         {
             this.out = new DataOutputStream(client.getOutputStream());
@@ -30,6 +30,12 @@ public class ClientListener implements Runnable
         {
             e.printStackTrace();
         }
+    }
+
+    public ClientListener(Server server, Socket client, int id, String nickname)
+    {
+        this(server, client, id);
+        this.nickname = nickname;
     }
 
     @Override
@@ -62,16 +68,15 @@ public class ClientListener implements Runnable
                 byte messType = in.readByte();
                 switch (messType)
                 {
-                    case 0:
+                    case 0: // disconnection
                         connected = false;
                         server.getTakenNicknames().remove(nickname);
-                        server.getTakenPlayerIDs().replace(id, false);
-                        server.removeClient(id);
+                        server.getClientListeners().remove(id);
                         break;
                     case 1: // room creation request
-                        out.writeByte(1);
                         synchronized (this)
                         {
+                            out.writeByte(1);
                             if(server.getRooms().size() < server.getROOM_MAX())
                             {
                                 out.writeBoolean(true);
@@ -79,8 +84,8 @@ public class ClientListener implements Runnable
                                 out.writeInt(roomID);
                                 Room room = new Room(server, new Player(nickname, socket, id), roomID);
                                 server.getRooms().put(roomID, room);
-                                server.getRoomStatus().put(roomID, server.getRoomExecutor().submit(room));
-                                server.removeClient(id);
+                                server.getRoomExecutor().submit(room);
+                                server.getClientListeners().remove(id);
                                 connectedToARoom = true;
                             }
                             else
@@ -110,8 +115,8 @@ public class ClientListener implements Runnable
             e.printStackTrace();
             if(nicknameSet)
                 server.getTakenNicknames().remove(nickname);
-            server.getTakenPlayerIDs().replace(id, false);
-            server.removeClient(id);
+            server.getTakenClientIDs().replace(id, false);
+            server.getClientListeners().remove(id);
         }
     }
 

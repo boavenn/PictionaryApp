@@ -31,6 +31,7 @@ public class PlayersPanel extends CustomPanel
             {
                 connectionManager.sendQuitMessage();
                 joinCreatePanel.makeVisible();
+                connectionManager.getApp().getToolPanel().hideRoomInfo();
             }
         });
         this.add(exit);

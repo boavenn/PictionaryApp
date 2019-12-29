@@ -1,10 +1,14 @@
 package server;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class PlayerListener implements Runnable
 {
     private Player player;
+    private DataOutputStream out;
+    private DataInputStream in;
     private Room room;
     private boolean connected = true;
 
@@ -12,6 +16,14 @@ public class PlayerListener implements Runnable
     {
         this.player = player;
         this.room = room;
+        try
+        {
+            out = new DataOutputStream(player.getSocket().getOutputStream());
+            in = new DataInputStream(player.getSocket().getInputStream());
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -21,7 +33,7 @@ public class PlayerListener implements Runnable
         {
             while(connected)
             {
-                byte messType = player.getInputStream().readByte();
+                byte messType = in.readByte();
                 switch (messType)
                 {
                     case 0:
