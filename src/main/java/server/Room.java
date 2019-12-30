@@ -4,20 +4,23 @@ import com.google.gson.Gson;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Room implements Runnable
 {
     private final Server server;
+    private Gson gson = new Gson();
     private ExecutorService playerExecutor;
     private @Getter HashMap<Player, PlayerListener> playerListeners = new HashMap<>();
     private final int PLAYERS_MAX = 4;
     private int numOfConnectedPlayers = 0;
     private @Getter int id;
-    private Gson gson = new Gson();
+    private @Getter boolean sessionRunning = false;
 
     public Room(Server server, Player player, int id)
     {
@@ -49,19 +52,34 @@ public class Room implements Runnable
         playerListeners.put(player, playerListener);
         playerExecutor.submit(playerListener);
         numOfConnectedPlayers++;
-        sendMessageToAllExcept(player,"Player '" + player.getNickname() + "' joined.");
+        sendServerMessageToAllExcept(player,"Player '" + player.getNickname() + "' joined.");
         sendStatusUpdateToAll();
+        if(numOfConnectedPlayers > 1 && !sessionRunning)
+        {
+            chooseDrawingPlayer();
+            sessionRunning = true;
+        }
     }
 
-    public void removePlayer(Player player)
+    public void removePlayer(Player player, boolean backToClient)
     {
         playerListeners.remove(player);
-        ClientListener clientListener = new ClientListener(server, player.getSocket(), player.getId(), player.getNickname());
-        server.getClientListeners().put(player.getId(), clientListener);
-        server.getClientExecutor().submit(clientListener);
+        if(backToClient)
+        {
+            ClientListener clientListener = new ClientListener(server, player.getSocket(), player.getId(), player.getNickname());
+            server.getClientListeners().put(player.getId(), clientListener);
+            server.getClientExecutor().submit(clientListener);
+        }
+        else
+        {
+            server.getTakenNicknames().remove(player.getNickname());
+            server.getClientListeners().remove(id);
+        }
         numOfConnectedPlayers--;
-        sendMessageToAllExcept(player, "Player '" + player.getNickname() + "' left.");
+        sendServerMessageToAllExcept(player, "Player '" + player.getNickname() + "' left.");
         sendStatusUpdateToAllExcept(player);
+        if(numOfConnectedPlayers < 2)
+            sessionRunning = false;
     }
 
     public void sendStatusUpdateToAllExcept(Player player)
@@ -99,7 +117,7 @@ public class Room implements Runnable
         }
     }
 
-    public void sendMessageToAllExcept(Player player, String text)
+    public void sendServerMessageToAllExcept(Player player, String text)
     {
         try
         {
@@ -115,14 +133,101 @@ public class Room implements Runnable
         }
     }
 
-    public void sendMessageToAll(String text)
+    public void sendTextMessageToAllFrom(Player player, String text)
+    {
+        try
+        {
+            for (Map.Entry<Player, PlayerListener> entry : playerListeners.entrySet())
+                if (!entry.getKey().equals(player))
+                {
+                    entry.getValue().getOut().writeByte(6);
+                    entry.getValue().getOut().writeUTF(player.getNickname());
+                    entry.getValue().getOut().writeUTF(text);
+                }
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendShapeToAllExcept(Player player, String shape)
     {
         try
         {
             for (Map.Entry<Player, PlayerListener> entry : playerListeners.entrySet())
             {
-                entry.getValue().getOut().writeByte(5);
-                entry.getValue().getOut().writeUTF(text);
+                if(!entry.getKey().equals(player))
+                {
+                    entry.getValue().getOut().writeByte(7);
+                    entry.getValue().getOut().writeUTF(shape);
+                }
+            }
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendUndoRequestToAllExcept(Player player)
+    {
+        try
+        {
+            for (Map.Entry<Player, PlayerListener> entry : playerListeners.entrySet())
+                if(!entry.getKey().equals(player))
+                    entry.getValue().getOut().writeByte(8);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendRedoRequestToAllExcept(Player player)
+    {
+        try
+        {
+            for (Map.Entry<Player, PlayerListener> entry : playerListeners.entrySet())
+                if(!entry.getKey().equals(player))
+                    entry.getValue().getOut().writeByte(9);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendClearRequestToAllExcept(Player player)
+    {
+        try
+        {
+            for (Map.Entry<Player, PlayerListener> entry : playerListeners.entrySet())
+                if(!entry.getKey().equals(player))
+                    entry.getValue().getOut().writeByte(10);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void chooseDrawingPlayer()
+    {
+        ArrayList<Player> temp = new ArrayList<>();
+        for (Map.Entry<Player, PlayerListener> entry : playerListeners.entrySet())
+            if(!entry.getKey().isDrawing())
+                temp.add(entry.getKey());
+            else
+                entry.getKey().setDrawing(false);
+
+        Random r = new Random();
+        int idx = r.nextInt(temp.size());
+        temp.get(idx).setDrawing(true);
+        String whoIsDrawing = temp.get(idx).getNickname();
+
+        try
+        {
+            for (Map.Entry<Player, PlayerListener> entry : playerListeners.entrySet())
+            {
+                entry.getValue().getOut().writeByte(11);
+                entry.getValue().getOut().writeBoolean(entry.getKey().isDrawing());
+                entry.getValue().getOut().writeUTF(whoIsDrawing);
             }
         } catch (IOException e)
         {

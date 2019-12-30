@@ -1,26 +1,25 @@
 package client.app.shapes;
 
+import lombok.Getter;
+
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Pencil extends Shape
 {
     private ArrayList<Line> lines = new ArrayList<>();
 
-//    public Pencil(Color color, Point startingPoint, Point finalPoint, int stroke)
-//    {
-//        super(color, startingPoint, finalPoint, stroke, Type.PENCIL);
-//    }
-//
-//    public Pencil(Color color, int stroke, ArrayList<Line> lines)
-//    {
-//        this(color, stroke);
-//        this.lines = lines;
-//    }
-
     public Pencil(Color color, int stroke)
     {
         super(color, stroke, Type.PENCIL);
+    }
+
+    public Pencil(Color color, int stroke, ArrayList<Line> lines)
+    {
+        this(color, stroke);
+        this.lines = lines;
     }
 
     @Override

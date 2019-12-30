@@ -1,12 +1,22 @@
 package client.app.net;
 
+import client.app.net.sierialization.PointDeserializer;
+import client.app.net.sierialization.PointSerializer;
+import client.app.net.sierialization.ShapeDeserializer;
+import client.app.shapes.Line;
+import client.app.shapes.Pencil;
+import client.app.shapes.Shape;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.Getter;
+import lombok.Setter;
 
+import java.awt.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class ServerListener implements Runnable
 {
@@ -14,8 +24,9 @@ public class ServerListener implements Runnable
     private DataInputStream in;
     private ConnectionManager connectionManager;
     private boolean connected = true;
-    private @Getter boolean connectedToARoom = false;
-    private Gson gson = new Gson();
+    private @Setter @Getter boolean connectedToARoom = false;
+    private @Getter boolean drawing = false;
+    private Gson gson;
     private int chosenID;
 
     public ServerListener(ConnectionManager connectionManager, Socket socket)
@@ -29,6 +40,12 @@ public class ServerListener implements Runnable
         {
             e.printStackTrace();
         }
+
+        GsonBuilder gb = new GsonBuilder();
+        gb.registerTypeAdapter(Point.class, new PointSerializer());
+        gb.registerTypeAdapter(Point.class, new PointDeserializer());
+        gb.registerTypeAdapter(Shape.class, new ShapeDeserializer());
+        gson = gb.create();
     }
 
     @Override
@@ -107,12 +124,48 @@ public class ServerListener implements Runnable
                         int[] points = gson.fromJson(in.readUTF(), int[].class);
                         connectionManager.getApp().getPlayersPanel().setPlayers(players, points);
                         break;
-                    case 5: // message
+                    case 5: // server message
                         String message = in.readUTF();
                         connectionManager.getApp().getChatPanel().addSystemEntry(message);
                         break;
+                    case 6: // text message
+                        String who = in.readUTF();
+                        message = in.readUTF();
+                        connectionManager.getApp().getChatPanel().addUserEntry(who, message);
+                        break;
+                    case 7: // got new shape
+                        String shapeInJson = in.readUTF();
+                        Shape shape = gson.fromJson(shapeInJson, Shape.class);
+                        connectionManager.getApp().getPaintPanel().addNewShape(shape);
+                        break;
+                    case 8: // undo request
+                        connectionManager.getApp().getPaintPanel().undo();
+                        break;
+                    case 9: // redo request
+                        connectionManager.getApp().getPaintPanel().redo();
+                        break;
+                    case 10: // clear request
+                        connectionManager.getApp().getPaintPanel().clear();
+                        break;
+                    case 11: // drawing status
+                        drawing = in.readBoolean();
+                        String whoIsDrawing = in.readUTF();
+                        connectionManager.getApp().getChatPanel().addSystemEntry("'" + whoIsDrawing + "' is drawing now.");
+                        break;
                 }
             }
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendTextMessage(String text)
+    {
+        try
+        {
+            out.writeByte(6);
+            out.writeUTF(text);
         } catch (IOException e)
         {
             e.printStackTrace();
@@ -124,6 +177,19 @@ public class ServerListener implements Runnable
         try
         {
             out.writeByte(0);
+            connectedToARoom = false;
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendRoomQuitMessage()
+    {
+        try
+        {
+            out.writeByte(1);
+            connectedToARoom = false;
         } catch (IOException e)
         {
             e.printStackTrace();
@@ -158,6 +224,52 @@ public class ServerListener implements Runnable
         {
             out.writeByte(3);
             out.writeInt(roomID);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendNewShape(Shape shape)
+    {
+        try
+        {
+            out.writeByte(7);
+            String str = gson.toJson(shape);
+            out.writeUTF(str);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendUndo()
+    {
+        try
+        {
+            out.writeByte(8);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendRedo()
+    {
+        try
+        {
+            out.writeByte(9);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendClear()
+    {
+        try
+        {
+            out.writeByte(10);
         } catch (IOException e)
         {
             e.printStackTrace();

@@ -40,10 +40,13 @@ public class PaintPanel extends CustomPanel
             @Override
             public void mouseDragged(MouseEvent e)
             {
-                if(currentShape != null)
+                if(connectionManager.isConnected() && connectionManager.isConnectedToARoom() && connectionManager.isDrawing())
                 {
-                    currentShape.setFinalPoint(new Point(e.getX(), e.getY()));
-                    repaint();
+                    if (currentShape != null)
+                    {
+                        currentShape.setFinalPoint(new Point(e.getX(), e.getY()));
+                        repaint();
+                    }
                 }
             }
         });
@@ -53,21 +56,28 @@ public class PaintPanel extends CustomPanel
             @Override
             public void mousePressed(MouseEvent e)
             {
-                if(currentShape != null && e.getButton() == 1)
+                if(connectionManager.isConnected() && connectionManager.isConnectedToARoom() && connectionManager.isDrawing())
                 {
-                    currentShape.setStartingPoint(new Point(e.getX(), e.getY()));
-                    currentShape.setFinalPoint(new Point(e.getX(), e.getY()));
+                    if (currentShape != null && e.getButton() == 1)
+                    {
+                        currentShape.setStartingPoint(new Point(e.getX(), e.getY()));
+                        currentShape.setFinalPoint(new Point(e.getX(), e.getY()));
+                    }
                 }
             }
 
             @Override
             public void mouseReleased(MouseEvent e)
             {
-                if(currentShape != null && e.getButton() == 1)
+                if(connectionManager.isConnected() && connectionManager.isConnectedToARoom() && connectionManager.isDrawing())
                 {
-                    shapes.add(currentShape);
-                    repaint();
-                    reuse(currentShape);
+                    if (currentShape != null && e.getButton() == 1)
+                    {
+                        shapes.add(currentShape);
+                        connectionManager.sendNewShape(currentShape);
+                        repaint();
+                        reuse(currentShape);
+                    }
                 }
             }
         });
@@ -95,44 +105,47 @@ public class PaintPanel extends CustomPanel
         g.drawImage(img, 0, 0, null);
     }
 
-//    public void setShapes(ArrayList<Shape> shapes)
-//    {
-//        this.shapes = shapes;
-//        repaint();
-//    }
-
     public void clear()
     {
-        if(!shapes.isEmpty())
+        if (!shapes.isEmpty())
         {
             shapes.clear();
             repaint();
         }
 
-        if(!removedShapes.isEmpty())
+        if (!removedShapes.isEmpty())
         {
             removedShapes.clear();
         }
+
+        if(connectionManager.isDrawing())
+            connectionManager.sendClear();
     }
 
     public void undo()
     {
-        if(!shapes.isEmpty())
+        if (!shapes.isEmpty())
         {
             removedShapes.add(shapes.get(shapes.size() - 1));
             shapes.remove(shapes.size() - 1);
             repaint();
         }
+
+        if(connectionManager.isDrawing())
+            connectionManager.sendUndo();
     }
 
     public void redo()
     {
-        if(!removedShapes.isEmpty())
+        if (!removedShapes.isEmpty())
         {
             shapes.add(removedShapes.get(removedShapes.size() - 1));
             removedShapes.remove(removedShapes.get(removedShapes.size() - 1));
             repaint();
         }
+
+        if(connectionManager.isDrawing())
+            connectionManager.sendRedo();
     }
 
     private void reuse(Shape shape)
@@ -157,5 +170,11 @@ public class PaintPanel extends CustomPanel
     {
         if(currentShape != null)
             currentShape.setStroke(stroke);
+    }
+
+    public void addNewShape(Shape shape)
+    {
+        shapes.add(shape);
+        repaint();
     }
 }

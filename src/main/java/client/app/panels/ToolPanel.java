@@ -37,7 +37,11 @@ public class ToolPanel extends CustomPanel
         rectangle.setIcon(new ImageIcon("src/main/java/client/res/RectangleOff.png"));
         rectangle.setSelectedIcon(new ImageIcon("src/main/java/client/res/RectangleOn.png"));
         rectangle.setRolloverIcon(new ImageIcon("src/main/java/client/res/RectangleOn.png"));
-        rectangle.addActionListener((e) -> paintPanel.setCurrentShape(new Rectangle(colorChooser.getColor(), currentStroke)));
+        rectangle.addActionListener(e ->
+        {
+            if(connectionManager.isConnected() && connectionManager.isConnectedToARoom() && connectionManager.isDrawing())
+                paintPanel.setCurrentShape(new Rectangle(colorChooser.getColor(), currentStroke));
+        });
         rectangle.setBackground(bgColor);
         rectangle.setToolTipText("Rectangle");
         tools.add(rectangle);
@@ -46,7 +50,11 @@ public class ToolPanel extends CustomPanel
         ellipse.setIcon(new ImageIcon("src/main/java/client/res/EllipseOff.png"));
         ellipse.setSelectedIcon(new ImageIcon("src/main/java/client/res/EllipseOn.png"));
         ellipse.setRolloverIcon(new ImageIcon("src/main/java/client/res/EllipseOn.png"));
-        ellipse.addActionListener((e) -> paintPanel.setCurrentShape(new Ellipse(colorChooser.getColor(), currentStroke)));
+        ellipse.addActionListener(e ->
+        {
+            if(connectionManager.isConnected() && connectionManager.isConnectedToARoom() && connectionManager.isDrawing())
+                paintPanel.setCurrentShape(new Ellipse(colorChooser.getColor(), currentStroke));
+        });
         ellipse.setBackground(bgColor);
         ellipse.setToolTipText("Ellipse");
         tools.add(ellipse);
@@ -55,7 +63,11 @@ public class ToolPanel extends CustomPanel
         line.setIcon(new ImageIcon("src/main/java/client/res/LineOff.png"));
         line.setSelectedIcon(new ImageIcon("src/main/java/client/res/LineOn.png"));
         line.setRolloverIcon(new ImageIcon("src/main/java/client/res/LineOn.png"));
-        line.addActionListener((e) -> paintPanel.setCurrentShape(new Line(colorChooser.getColor(), currentStroke)));
+        line.addActionListener(e ->
+        {
+            if(connectionManager.isConnected() && connectionManager.isConnectedToARoom() && connectionManager.isDrawing())
+                paintPanel.setCurrentShape(new Line(colorChooser.getColor(), currentStroke));
+        });
         line.setBackground(bgColor);
         line.setToolTipText("Line");
         tools.add(line);
@@ -64,7 +76,11 @@ public class ToolPanel extends CustomPanel
         pencil.setIcon(new ImageIcon("src/main/java/client/res/PencilOff.png"));
         pencil.setSelectedIcon(new ImageIcon("src/main/java/client/res/PencilOn.png"));
         pencil.setRolloverIcon(new ImageIcon("src/main/java/client/res/PencilOn.png"));
-        pencil.addActionListener((e) -> paintPanel.setCurrentShape(new Pencil(colorChooser.getColor(), currentStroke)));
+        pencil.addActionListener(e ->
+        {
+            if(connectionManager.isConnected() && connectionManager.isConnectedToARoom() && connectionManager.isDrawing())
+                paintPanel.setCurrentShape(new Pencil(colorChooser.getColor(), currentStroke));
+        });
         pencil.setBackground(bgColor);
         pencil.setToolTipText("Pencil");
         tools.add(pencil);
@@ -90,12 +106,17 @@ public class ToolPanel extends CustomPanel
             @Override
             public void popupMenuCanceled(PopupMenuEvent e)
             {
-                paintPanel.setCurrentShapeColor(colorChooser.getColor());
+                if(connectionManager.isConnected() && connectionManager.isConnectedToARoom() && connectionManager.isDrawing())
+                    paintPanel.setCurrentShapeColor(colorChooser.getColor());
             }
         });
 
         JButton colorsButton = new JButton("Choose color");
-        colorsButton.addActionListener((e) -> colors.show(colorsButton, colorsButton.getX(), colorsButton.getY() - 200));
+        colorsButton.addActionListener(e ->
+        {
+            if(connectionManager.isConnected() && connectionManager.isConnectedToARoom() && connectionManager.isDrawing())
+                colors.show(colorsButton, colorsButton.getX(), colorsButton.getY() - 200);
+        });
         colorsButton.setBackground(Color.WHITE);
         colorsButton.setFocusPainted(false);
         this.add(colorsButton);
@@ -108,8 +129,11 @@ public class ToolPanel extends CustomPanel
         temp.setEditable(false);
         spinner.addChangeListener(e ->
         {
-            currentStroke = (int)spinner.getValue();
-            paintPanel.setCurrentShapeStroke(currentStroke);
+            if(connectionManager.isConnected() && connectionManager.isConnectedToARoom() && connectionManager.isDrawing())
+            {
+                currentStroke = (int) spinner.getValue();
+                paintPanel.setCurrentShapeStroke(currentStroke);
+            }
         });
 
         JLabel label = new JLabel("Set stroke");
@@ -121,7 +145,11 @@ public class ToolPanel extends CustomPanel
         JButton undo = new JButton();
         undo.setPreferredSize(new Dimension(ICON_SIZE, ICON_SIZE));
         undo.setIcon(new ImageIcon("src/main/java/client/res/Undo.png"));
-        undo.addActionListener((e) -> paintPanel.undo());
+        undo.addActionListener(e ->
+        {
+            if(connectionManager.isConnected() && connectionManager.isConnectedToARoom() && connectionManager.isDrawing())
+                paintPanel.undo();
+        });
         undo.setBackground(Color.WHITE);
         undo.setToolTipText("Undo");
         undo.setFocusPainted(false);
@@ -130,7 +158,11 @@ public class ToolPanel extends CustomPanel
         JButton redo = new JButton();
         redo.setPreferredSize(new Dimension(ICON_SIZE, ICON_SIZE));
         redo.setIcon(new ImageIcon("src/main/java/client/res/Redo.png"));
-        redo.addActionListener((e) -> paintPanel.redo());
+        redo.addActionListener(e ->
+        {
+            if(connectionManager.isConnected() && connectionManager.isConnectedToARoom() && connectionManager.isDrawing())
+                paintPanel.redo();
+        });
         redo.setBackground(Color.WHITE);
         redo.setToolTipText("Redo");
         redo.setFocusPainted(false);
@@ -139,7 +171,11 @@ public class ToolPanel extends CustomPanel
         JButton clear = new JButton();
         clear.setPreferredSize(new Dimension(ICON_SIZE, ICON_SIZE));
         clear.setIcon(new ImageIcon("src/main/java/client/res/Clear.png"));
-        clear.addActionListener((e) -> paintPanel.clear());
+        clear.addActionListener(e ->
+        {
+            if(connectionManager.isConnected() && connectionManager.isConnectedToARoom() && connectionManager.isDrawing())
+                paintPanel.clear();
+        });
         clear.setBackground(Color.WHITE);
         clear.setToolTipText("Clear");
         clear.setFocusPainted(false);

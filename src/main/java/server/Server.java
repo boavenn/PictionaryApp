@@ -65,7 +65,7 @@ public class Server
         }
     }
 
-    private void sendQuitMessage()
+    private void sendQuitMessage() // unused
     {
         for (Map.Entry<Integer, ClientListener> entry : clientListeners.entrySet())
         {

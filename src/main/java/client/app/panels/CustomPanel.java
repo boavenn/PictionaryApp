@@ -15,5 +15,6 @@ public abstract class CustomPanel extends JPanel
         this.setBackground(bgColor);
         this.setForeground(fgColor);
         this.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        this.connectionManager = connectionManager;
     }
 }

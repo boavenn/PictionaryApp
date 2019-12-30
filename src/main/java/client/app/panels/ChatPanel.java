@@ -33,8 +33,11 @@ public class ChatPanel extends CustomPanel
         {
             if(!input_area.getText().isEmpty())
             {
-                listModel.addElement(new ChatEntry(">>", input_area.getText()));
+                String text = input_area.getText();
+                listModel.addElement(new ChatEntry(">>", text));
                 input_area.setText("");
+                if(connectionManager.isConnected() && connectionManager.isConnectedToARoom())
+                    connectionManager.sendTextMessage(text);
             }
         });
         this.add(input_area);
@@ -48,6 +51,11 @@ public class ChatPanel extends CustomPanel
     public void addErrorEntry(String text)
     {
         listModel.addElement(new ChatEntry("~ERROR", text));
+    }
+
+    public void addUserEntry(String who, String text)
+    {
+        listModel.addElement(new ChatEntry("#" + who, text));
     }
 
     public static class MyCellRenderer extends DefaultListCellRenderer

@@ -2,20 +2,22 @@ package client.app.shapes;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.awt.*;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public abstract class Shape
 {
     protected Color color;
     protected Point startingPoint;
     protected Point finalPoint;
     protected int stroke;
-    protected final Type type;
+    protected Type type;
 
-    enum Type
+    public enum Type
     {
         RECTANGLE, ELLIPSE, LINE, PENCIL
     }

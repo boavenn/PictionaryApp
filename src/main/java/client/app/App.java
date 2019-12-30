@@ -48,9 +48,10 @@ public class App
             {
                 if(connectionManager.isConnected())
                 {
-                    connectionManager.sendQuitMessage();
-                    if(connectionManager.getConnectionChecker().getServerListener().isConnectedToARoom())
-                        connectionManager.sendQuitMessage(); // we are sending it twice if we are already in a room
+                    if(connectionManager.isConnectedToARoom())
+                        connectionManager.sendRoomQuitMessage();
+                    else
+                        connectionManager.sendQuitMessage();
                 }
             }
         });
@@ -103,12 +104,10 @@ public class App
                 "Room list", JOptionPane.QUESTION_MESSAGE, null, list, list[0]);
         int id;
         if(temp != null)
-        {
             id = Integer.parseInt(temp.substring(0, temp.indexOf('.')));
-            System.out.println(id);
-        }
         else
             id = -1;
+
         return id;
     }
 }

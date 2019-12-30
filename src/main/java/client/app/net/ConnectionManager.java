@@ -1,6 +1,7 @@
 package client.app.net;
 
 import client.app.App;
+import client.app.shapes.Shape;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -28,9 +29,24 @@ public class ConnectionManager
         return connectionChecker.isConnected();
     }
 
+    public boolean isConnectedToARoom()
+    {
+        return connectionChecker.getServerListener().isConnectedToARoom();
+    }
+
+    public boolean isDrawing()
+    {
+        return connectionChecker.getServerListener().isDrawing();
+    }
+
     public void sendQuitMessage()
     {
         connectionChecker.getServerListener().sendQuitMessage();
+    }
+
+    public void sendRoomQuitMessage()
+    {
+        connectionChecker.getServerListener().sendRoomQuitMessage();
     }
 
     public void sendRoomCreationRequest()
@@ -60,8 +76,33 @@ public class ConnectionManager
         return true;
     }
 
+    public void sendTextMessage(String text)
+    {
+        connectionChecker.getServerListener().sendTextMessage(text);
+    }
+
     public void sendRoomViewRequest()
     {
         connectionChecker.getServerListener().sendRoomViewRequest();
+    }
+
+    public void sendNewShape(Shape shape)
+    {
+        connectionChecker.getServerListener().sendNewShape(shape);
+    }
+
+    public void sendUndo()
+    {
+        connectionChecker.getServerListener().sendUndo();
+    }
+
+    public void sendRedo()
+    {
+        connectionChecker.getServerListener().sendRedo();
+    }
+
+    public void sendClear()
+    {
+        connectionChecker.getServerListener().sendClear();
     }
 }

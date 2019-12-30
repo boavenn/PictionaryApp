@@ -38,15 +38,35 @@ public class PlayerListener implements Runnable
                 byte messType = in.readByte();
                 switch (messType)
                 {
-                    case 0:
-                        room.removePlayer(player);
+                    case 0: // disconnection from a room only
+                        room.removePlayer(player, true);
                         connected = false;
+                        break;
+                    case 1: // disconnection from the whole app
+                        room.removePlayer(player, false);
+                        connected = false;
+                        break;
+                    case 6: // text message to send others
+                        room.sendTextMessageToAllFrom(player, in.readUTF());
+                        break;
+                    case 7: // new shape
+                        String shape = in.readUTF();
+                        room.sendShapeToAllExcept(player, shape);
+                        break;
+                    case 8: // undo
+                        room.sendUndoRequestToAllExcept(player);
+                        break;
+                    case 9: // redo
+                        room.sendRedoRequestToAllExcept(player);
+                        break;
+                    case 10: // clear
+                        room.sendClearRequestToAllExcept(player);
                         break;
                 }
             }
         } catch (IOException e)
         {
-            room.removePlayer(player);
+            room.removePlayer(player, false);
             e.printStackTrace();
         }
     }
