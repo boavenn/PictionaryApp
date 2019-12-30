@@ -47,7 +47,16 @@ public class PlayerListener implements Runnable
                         connected = false;
                         break;
                     case 6: // text message to send others
-                        room.sendTextMessageToAllFrom(player, in.readUTF());
+                        String str = in.readUTF();
+                        room.sendTextMessageToAllFrom(player, str);
+                        if(!player.isDrawing() && room.checkIfGuessed(str))
+                        {
+                            player.addPoints(5);
+                            room.sendServerMessageTo(player, "You have guessed the word, it was " + room.getWordToGuess());
+                            room.sendServerMessageToAllExcept(player, player.getNickname() + " has guessed the word, it was " + room.getWordToGuess());
+                            room.chooseDrawingPlayerAndWordToGuess();
+                            room.sendStatusUpdateToAll();
+                        }
                         break;
                     case 7: // new shape
                         int chunks = in.readInt();

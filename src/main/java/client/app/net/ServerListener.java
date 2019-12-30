@@ -65,7 +65,7 @@ public class ServerListener implements Runnable
                     connectionManager.getApp().getChatPanel().addErrorEntry(str);
                 }
             }
-            connectionManager.getApp().getChatPanel().addSystemEntry("Your nickname is '" + connectionManager.getNickname() + "'");
+            connectionManager.getApp().getChatPanel().addSystemEntry("Your nickname is " + connectionManager.getNickname());
 
             while(connected)
             {
@@ -81,7 +81,7 @@ public class ServerListener implements Runnable
                         if(flag)
                         {
                             int roomID = in.readInt();
-                            connectionManager.getApp().getWordPanel().getJLabel().setText("Waiting for more players to join...");
+                            connectionManager.getApp().getWordPanel().getJLabel().setText("WAITING FOR MORE PLAYERS TO JOIN...");
                             connectionManager.getApp().getToolPanel().showRoomInfo(roomID);
                             connectionManager.getApp().getChatPanel().addSystemEntry("Successfully created a room [" + roomID + "]");
                             String[] players = {connectionManager.getNickname()};
@@ -102,7 +102,7 @@ public class ServerListener implements Runnable
                             if (chosenID != -1)
                             {
                                 sendRoomJoinRequest(chosenID);
-                                connectionManager.getApp().getChatPanel().addSystemEntry("Trying to join a room [" + chosenID + "] ...");
+                                connectionManager.getApp().getChatPanel().addSystemEntry("Trying to join a room [" + chosenID + "]...");
                             }
                         }
                         else
@@ -112,7 +112,7 @@ public class ServerListener implements Runnable
                         flag = in.readBoolean();
                         if(flag)
                         {
-                            connectionManager.getApp().getWordPanel().getJLabel().setText("Waiting for more players to join...");
+                            connectionManager.getApp().getWordPanel().getJLabel().setText("WAITING FOR MORE PLAYERS TO JOIN...");
                             connectionManager.getApp().getToolPanel().showRoomInfo(chosenID);
                             connectionManager.getApp().getPlayersPanel().makeVisible();
                             connectionManager.getApp().getChatPanel().addSystemEntry("Successfully joined");
@@ -126,7 +126,7 @@ public class ServerListener implements Runnable
                         int[] points = gson.fromJson(in.readUTF(), int[].class);
                         connectionManager.getApp().getPlayersPanel().setPlayers(players, points);
                         if(players.length < 2)
-                            connectionManager.getApp().getWordPanel().getJLabel().setText("Waiting for more players to join...");
+                            connectionManager.getApp().getWordPanel().getJLabel().setText("WAITING FOR MORE PLAYERS TO JOIN...");
                         break;
                     case 5: // server message
                         String message = in.readUTF();
@@ -165,8 +165,9 @@ public class ServerListener implements Runnable
                         {
                             String whoIsDrawing = in.readUTF();
                             connectionManager.getApp().getWordPanel().getJLabel().setText(whoIsDrawing + " is drawing now");
-                            connectionManager.getApp().getChatPanel().addSystemEntry("'" + whoIsDrawing + "' is drawing now.");
+                            connectionManager.getApp().getChatPanel().addSystemEntry(whoIsDrawing + " is drawing now");
                         }
+                        connectionManager.getApp().getPaintPanel().clear();
                         break;
                 }
             }

@@ -25,7 +25,8 @@ public class Room implements Runnable
     private @Getter int id;
     private @Getter boolean sessionRunning = false;
     private ArrayList<String> words = new ArrayList<>();
-    private String wordToGuess = "";
+    private @Getter String wordToGuess = "";
+    private Player drawingPlayer;
 
     public Room(Server server, Player player, int id)
     {
@@ -60,10 +61,15 @@ public class Room implements Runnable
         numOfConnectedPlayers++;
         sendServerMessageToAllExcept(player,"Player '" + player.getNickname() + "' joined.");
         sendStatusUpdateToAll();
-        if(numOfConnectedPlayers > 1 && !sessionRunning)
+        if(numOfConnectedPlayers > 1)
         {
-            chooseDrawingPlayer();
-            sessionRunning = true;
+            if(!sessionRunning)
+            {
+                chooseDrawingPlayerAndWordToGuess();
+                sessionRunning = true;
+            }
+            else
+                sendDrawingStatusToAll(drawingPlayer.getNickname());
         }
     }
 
@@ -88,7 +94,7 @@ public class Room implements Runnable
         {
             sendClearRequestToAllExcept(player);
             if(numOfConnectedPlayers > 1)
-                chooseDrawingPlayer();
+                chooseDrawingPlayerAndWordToGuess();
         }
         if(numOfConnectedPlayers < 2)
             sessionRunning = false;
@@ -139,6 +145,18 @@ public class Room implements Runnable
                     entry.getValue().getOut().writeByte(5);
                     entry.getValue().getOut().writeUTF(text);
                 }
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendServerMessageTo(Player player, String text)
+    {
+        try
+        {
+            playerListeners.get(player).getOut().writeByte(5);
+            playerListeners.get(player).getOut().writeUTF(text);
         } catch (IOException e)
         {
             e.printStackTrace();
@@ -221,7 +239,12 @@ public class Room implements Runnable
         }
     }
 
-    public void chooseDrawingPlayer()
+    public boolean checkIfGuessed(String word)
+    {
+        return word.toLowerCase().equals(wordToGuess.toLowerCase());
+    }
+
+    public void chooseDrawingPlayerAndWordToGuess()
     {
         ArrayList<Player> temp = new ArrayList<>();
         for (Map.Entry<Player, PlayerListener> entry : playerListeners.entrySet())
@@ -232,9 +255,14 @@ public class Room implements Runnable
 
         Random r = new Random();
         int idx = r.nextInt(temp.size());
-        temp.get(idx).setDrawing(true);
-        String whoIsDrawing = temp.get(idx).getNickname();
+        drawingPlayer = temp.get(idx);
+        drawingPlayer.setDrawing(true);
 
+        sendDrawingStatusToAll(drawingPlayer.getNickname());
+    }
+
+    public void sendDrawingStatusToAll(String whoIsDrawing)
+    {
         try
         {
             for (Map.Entry<Player, PlayerListener> entry : playerListeners.entrySet())

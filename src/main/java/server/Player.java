@@ -19,4 +19,9 @@ public class Player
         this.socket = socket;
         this.id = id;
     }
+
+    public void addPoints(int v)
+    {
+        points += v;
+    }
 }

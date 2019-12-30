@@ -13,10 +13,10 @@ public class WordPanel extends CustomPanel
     public WordPanel(int width, int height, Color bgColor, Color fgColor, ConnectionManager connectionManager)
     {
         super(width, height, bgColor, fgColor, connectionManager);
-        jLabel = new JLabel("Join a room or create one");
+        jLabel = new JLabel("JOIN A ROOM OR CREATE ONE");
         jLabel.setPreferredSize(new Dimension(width - 20, height - 20));
         jLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        jLabel.setFont(new Font("monospace", Font.BOLD, 32));
+        jLabel.setFont(new Font("monospace", Font.BOLD, 24));
         this.add(jLabel);
     }
 }

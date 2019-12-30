@@ -14,7 +14,7 @@ public class ChatPanel extends CustomPanel
     public ChatPanel(int width, int height, Color bgColor, Color fgColor, ConnectionManager connectionManager)
     {
         super(width, height, bgColor, fgColor, connectionManager);
-        ChatEntry.setEntryWidth(width - 65);
+        ChatEntry.setEntryWidth(width - 80);
 
         listModel = new DefaultListModel<>();
         JList<ChatEntry> chat = new JList<>(listModel);

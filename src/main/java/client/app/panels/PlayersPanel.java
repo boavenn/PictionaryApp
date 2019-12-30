@@ -30,7 +30,7 @@ public class PlayersPanel extends CustomPanel
             if(connectionManager.isConnected())
             {
                 connectionManager.getApp().getPaintPanel().clear();
-                connectionManager.getApp().getWordPanel().getJLabel().setText("Join a room or create one");
+                connectionManager.getApp().getWordPanel().getJLabel().setText("JOIN ROOM OR CREATE ONE");
                 connectionManager.sendQuitMessage();
                 joinCreatePanel.makeVisible();
                 connectionManager.getApp().getToolPanel().hideRoomInfo();
