@@ -3,6 +3,9 @@ package server;
 import com.google.gson.Gson;
 import lombok.Getter;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,9 +24,12 @@ public class Room implements Runnable
     private int numOfConnectedPlayers = 0;
     private @Getter int id;
     private @Getter boolean sessionRunning = false;
+    private ArrayList<String> words = new ArrayList<>();
+    private String wordToGuess = "";
 
     public Room(Server server, Player player, int id)
     {
+        initWords();
         this.server = server;
         this.id = id;
         playerExecutor = Executors.newFixedThreadPool(PLAYERS_MAX);
@@ -37,7 +43,7 @@ public class Room implements Runnable
         {
             while (numOfConnectedPlayers > 0)
             {
-                Thread.sleep(200);
+                Thread.sleep(500);
             }
         } catch (InterruptedException e)
         {
@@ -78,6 +84,12 @@ public class Room implements Runnable
         numOfConnectedPlayers--;
         sendServerMessageToAllExcept(player, "Player '" + player.getNickname() + "' left.");
         sendStatusUpdateToAllExcept(player);
+        if(player.isDrawing()) // if that player is drawing we clear the paintpanel of other players
+        {
+            sendClearRequestToAllExcept(player);
+            if(numOfConnectedPlayers > 1)
+                chooseDrawingPlayer();
+        }
         if(numOfConnectedPlayers < 2)
             sessionRunning = false;
     }
@@ -229,8 +241,32 @@ public class Room implements Runnable
             {
                 entry.getValue().getOut().writeByte(11);
                 entry.getValue().getOut().writeBoolean(entry.getKey().isDrawing());
-                entry.getValue().getOut().writeUTF(whoIsDrawing);
+                if(entry.getKey().isDrawing())
+                    entry.getValue().getOut().writeUTF(chooseWordToGuess());
+                else
+                    entry.getValue().getOut().writeUTF(whoIsDrawing);
             }
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private String chooseWordToGuess()
+    {
+        Random r = new Random();
+        int idx = r.nextInt(words.size());
+        wordToGuess = words.get(idx);
+        return wordToGuess;
+    }
+
+    private void initWords()
+    {
+        try(BufferedReader in = new BufferedReader(new FileReader("src/main/java/server/words.txt")))
+        {
+            int size = Integer.parseInt(in.readLine());
+            for(int i = 0; i < size; i++)
+                words.add(in.readLine());
         } catch (IOException e)
         {
             e.printStackTrace();

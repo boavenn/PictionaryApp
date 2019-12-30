@@ -81,6 +81,7 @@ public class ServerListener implements Runnable
                         if(flag)
                         {
                             int roomID = in.readInt();
+                            connectionManager.getApp().getWordPanel().getJLabel().setText("Waiting for more players to join...");
                             connectionManager.getApp().getToolPanel().showRoomInfo(roomID);
                             connectionManager.getApp().getChatPanel().addSystemEntry("Successfully created a room [" + roomID + "]");
                             String[] players = {connectionManager.getNickname()};
@@ -111,6 +112,7 @@ public class ServerListener implements Runnable
                         flag = in.readBoolean();
                         if(flag)
                         {
+                            connectionManager.getApp().getWordPanel().getJLabel().setText("Waiting for more players to join...");
                             connectionManager.getApp().getToolPanel().showRoomInfo(chosenID);
                             connectionManager.getApp().getPlayersPanel().makeVisible();
                             connectionManager.getApp().getChatPanel().addSystemEntry("Successfully joined");
@@ -123,6 +125,8 @@ public class ServerListener implements Runnable
                         String[] players = gson.fromJson(in.readUTF(), String[].class);
                         int[] points = gson.fromJson(in.readUTF(), int[].class);
                         connectionManager.getApp().getPlayersPanel().setPlayers(players, points);
+                        if(players.length < 2)
+                            connectionManager.getApp().getWordPanel().getJLabel().setText("Waiting for more players to join...");
                         break;
                     case 5: // server message
                         String message = in.readUTF();
@@ -152,8 +156,17 @@ public class ServerListener implements Runnable
                         break;
                     case 11: // drawing status
                         drawing = in.readBoolean();
-                        String whoIsDrawing = in.readUTF();
-                        connectionManager.getApp().getChatPanel().addSystemEntry("'" + whoIsDrawing + "' is drawing now.");
+                        if(drawing)
+                        {
+                            connectionManager.getApp().getWordPanel().getJLabel().setText("Your task is to draw a: " + in.readUTF());
+                            connectionManager.getApp().getChatPanel().addSystemEntry("You are drawing now");
+                        }
+                        else
+                        {
+                            String whoIsDrawing = in.readUTF();
+                            connectionManager.getApp().getWordPanel().getJLabel().setText(whoIsDrawing + " is drawing now");
+                            connectionManager.getApp().getChatPanel().addSystemEntry("'" + whoIsDrawing + "' is drawing now.");
+                        }
                         break;
                 }
             }
