@@ -150,7 +150,7 @@ public class Room implements Runnable
         }
     }
 
-    public void sendShapeToAllExcept(Player player, String shape)
+    public void sendShapeToAllExcept(Player player, String[] shape, int chunks)
     {
         try
         {
@@ -159,7 +159,9 @@ public class Room implements Runnable
                 if(!entry.getKey().equals(player))
                 {
                     entry.getValue().getOut().writeByte(7);
-                    entry.getValue().getOut().writeUTF(shape);
+                    entry.getValue().getOut().writeInt(chunks);
+                    for(int i = 0; i < chunks; i++)
+                        entry.getValue().getOut().writeUTF(shape[i]);
                 }
             }
         } catch (IOException e)

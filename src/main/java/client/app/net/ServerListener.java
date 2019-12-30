@@ -134,8 +134,11 @@ public class ServerListener implements Runnable
                         connectionManager.getApp().getChatPanel().addUserEntry(who, message);
                         break;
                     case 7: // got new shape
-                        String shapeInJson = in.readUTF();
-                        Shape shape = gson.fromJson(shapeInJson, Shape.class);
+                        int chunks = in.readInt();
+                        StringBuilder str = new StringBuilder();
+                        for(int i = 0; i < chunks; i++)
+                            str.append(in.readUTF());
+                        Shape shape = gson.fromJson(str.toString(), Shape.class);
                         connectionManager.getApp().getPaintPanel().addNewShape(shape);
                         break;
                     case 8: // undo request
@@ -232,11 +235,17 @@ public class ServerListener implements Runnable
 
     public void sendNewShape(Shape shape)
     {
+        final int limit = 10_000;
         try
         {
             out.writeByte(7);
             String str = gson.toJson(shape);
-            out.writeUTF(str);
+            int chunks = str.length() / limit + 1;
+            out.writeInt(chunks);
+            int j = 0;
+            for(int i = 0; i < chunks - 1; i++, j++)
+                out.writeUTF(str.substring(i * limit, (i + 1) * limit));
+            out.writeUTF(str.substring(j * limit));
         } catch (IOException e)
         {
             e.printStackTrace();

@@ -50,8 +50,11 @@ public class PlayerListener implements Runnable
                         room.sendTextMessageToAllFrom(player, in.readUTF());
                         break;
                     case 7: // new shape
-                        String shape = in.readUTF();
-                        room.sendShapeToAllExcept(player, shape);
+                        int chunks = in.readInt();
+                        String[] shape = new String[chunks];
+                        for(int i = 0; i < chunks; i++)
+                            shape[i] = in.readUTF();
+                        room.sendShapeToAllExcept(player, shape, chunks);
                         break;
                     case 8: // undo
                         room.sendUndoRequestToAllExcept(player);
