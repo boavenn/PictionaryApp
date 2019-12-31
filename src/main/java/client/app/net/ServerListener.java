@@ -155,11 +155,13 @@ public class ServerListener implements Runnable
                         connectionManager.getApp().getPaintPanel().clear();
                         break;
                     case 11: // drawing status
+                        boolean wasDrawingPreviously = drawing;
                         drawing = in.readBoolean();
                         if(drawing)
                         {
                             connectionManager.getApp().getWordPanel().getJLabel().setText("Your task is to draw a: " + in.readUTF());
-                            connectionManager.getApp().getChatPanel().addSystemEntry("You are drawing now");
+                            if(!wasDrawingPreviously)
+                                connectionManager.getApp().getChatPanel().addSystemEntry("You are drawing now");
                         }
                         else
                         {

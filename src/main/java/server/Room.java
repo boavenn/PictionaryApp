@@ -257,6 +257,7 @@ public class Room implements Runnable
         int idx = r.nextInt(temp.size());
         drawingPlayer = temp.get(idx);
         drawingPlayer.setDrawing(true);
+        wordToGuess = chooseWordToGuess();
 
         sendDrawingStatusToAll(drawingPlayer.getNickname());
     }
@@ -270,7 +271,7 @@ public class Room implements Runnable
                 entry.getValue().getOut().writeByte(11);
                 entry.getValue().getOut().writeBoolean(entry.getKey().isDrawing());
                 if(entry.getKey().isDrawing())
-                    entry.getValue().getOut().writeUTF(chooseWordToGuess());
+                    entry.getValue().getOut().writeUTF(wordToGuess);
                 else
                     entry.getValue().getOut().writeUTF(whoIsDrawing);
             }
