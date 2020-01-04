@@ -4,13 +4,12 @@ import com.google.gson.Gson;
 import lombok.Getter;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -19,7 +18,7 @@ public class Room implements Runnable
     private final Server server;
     private Gson gson = new Gson();
     private ExecutorService playerExecutor;
-    private @Getter HashMap<Player, PlayerListener> playerListeners = new HashMap<>();
+    private @Getter ConcurrentHashMap<Player, PlayerListener> playerListeners = new ConcurrentHashMap<>();
     private final int PLAYERS_MAX = 4;
     private int numOfConnectedPlayers = 0;
     private @Getter int id;

@@ -78,64 +78,53 @@ public class ClientListener implements Runnable
                         server.getClientListeners().remove(id);
                         break;
                     case 1: // room creation request
-                        synchronized (this)
+                        out.writeByte(1);
+                        if(server.getActualRoomsSize().getAndIncrement() < server.getROOM_MAX())
                         {
-                            out.writeByte(1);
-                            if(server.getRooms().size() < server.getROOM_MAX())
-                            {
-                                out.writeBoolean(true);
-                                int roomID = server.assignRoomID();
-                                out.writeInt(roomID);
-                                Room room = new Room(server, new Player(nickname, socket, id), roomID);
-                                server.getRooms().put(roomID, room);
-                                server.getRoomExecutor().submit(room);
-                                server.getClientListeners().remove(id);
-                                connectedToARoom = true;
-                            }
-                            else
-                            {
-                                out.writeBoolean(false);
-                                out.writeUTF("Not enough space for making a new room");
-                            }
+                            out.writeBoolean(true);
+                            int roomID = server.assignRoomID();
+                            out.writeInt(roomID);
+                            server.addRoom(new Room(server, new Player(nickname, socket, id), roomID), roomID);
+                            server.getClientListeners().remove(id);
+                            connectedToARoom = true;
+                        }
+                        else
+                        {
+                            out.writeBoolean(false);
+                            out.writeUTF("Not enough space for making a new room");
                         }
                         break;
                     case 2: // room view request
-                        synchronized (this)
+                        out.writeByte(2);
+                        if(server.getActualRoomsSize().get() > 0)
                         {
-                            out.writeByte(2);
-                            if(server.getRooms().size() > 0)
-                            {
-                                out.writeBoolean(true);
-                                String[] roomInfo = new String[server.getRooms().size()];
-                                int i = 0;
-                                for (Map.Entry<Integer, Room> entry : server.getRooms().entrySet())
-                                    roomInfo[i++] = entry.getValue().toString();
-                                out.writeUTF(gson.toJson(roomInfo));
-                            }
-                            else
-                            {
-                                out.writeBoolean(false);
-                                out.writeUTF("No rooms available");
-                            }
+                            out.writeBoolean(true);
+                            String[] roomInfo = new String[server.getRooms().size()];
+                            int i = 0;
+                            for (Map.Entry<Integer, Room> entry : server.getRooms().entrySet())
+                                roomInfo[i++] = entry.getValue().toString();
+                            out.writeUTF(gson.toJson(roomInfo));
+                        }
+                        else
+                        {
+                            out.writeBoolean(false);
+                            out.writeUTF("No rooms available");
                         }
                         break;
                     case 3: // room join request
                         int roomID = in.readInt();
-                        synchronized (this)
+                        out.writeByte(3);
+                        if(server.getRooms().containsKey(roomID) && !server.getRooms().get(roomID).isFull())
                         {
-                            out.writeByte(3);
-                            if(!server.getRooms().get(roomID).isFull())
-                            {
-                                out.writeBoolean(true);
-                                server.getRooms().get(roomID).addPlayer(new Player(nickname, socket, id));
-                                server.getClientListeners().remove(id);
-                                connectedToARoom = true;
-                            }
-                            else
-                            {
-                                out.writeBoolean(false);
-                                out.writeUTF("Chosen room is already full");
-                            }
+                            out.writeBoolean(true);
+                            server.getRooms().get(roomID).addPlayer(new Player(nickname, socket, id));
+                            server.getClientListeners().remove(id);
+                            connectedToARoom = true;
+                        }
+                        else
+                        {
+                            out.writeBoolean(false);
+                            out.writeUTF("Chosen room is already full");
                         }
                         break;
                 }
@@ -147,17 +136,6 @@ public class ClientListener implements Runnable
                 server.getTakenNicknames().remove(nickname);
             server.getTakenClientIDs().replace(id, false);
             server.getClientListeners().remove(id);
-        }
-    }
-
-    public void sendQuitMessage()
-    {
-        try
-        {
-            out.writeByte(0);
-        } catch (IOException e)
-        {
-            e.printStackTrace();
         }
     }
 }

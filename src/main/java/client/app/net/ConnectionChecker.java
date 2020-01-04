@@ -58,7 +58,7 @@ public class ConnectionChecker implements Runnable
     {
         try
         {
-            socket = new Socket(InetAddress.getByName(connectionManager.getSERVER_ADDRESS()), 999);
+            socket = new Socket(InetAddress.getByName(connectionManager.getSERVER_ADDRESS()), 9999);
         } catch (IOException e)
         {
             return false;

@@ -6,22 +6,24 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server
 {
     private @Getter final int ROOM_MAX = 10;
     private ServerSocket serverSocket;
     private @Getter ExecutorService clientExecutor = Executors.newFixedThreadPool(10);
-    private @Getter HashMap<Integer, ClientListener> clientListeners = new HashMap<>();
-    private @Getter HashMap<Integer, Boolean> takenClientIDs = new HashMap<>();
+    private @Getter ConcurrentHashMap<Integer, ClientListener> clientListeners = new ConcurrentHashMap<>();
+    private @Getter ConcurrentHashMap<Integer, Boolean> takenClientIDs = new ConcurrentHashMap<>();
 
     private @Getter ExecutorService roomExecutor = Executors.newFixedThreadPool(ROOM_MAX);
-    private @Getter HashMap<Integer, Room> rooms = new HashMap<>();
-    private @Getter HashMap<Integer, Boolean> takenRoomIDs = new HashMap<>();
+    private @Getter ConcurrentHashMap<Integer, Room> rooms = new ConcurrentHashMap<>();
+    private @Getter ConcurrentHashMap<Integer, Boolean> takenRoomIDs = new ConcurrentHashMap<>();
+    private @Getter AtomicInteger actualRoomsSize = new AtomicInteger(0);
 
     private @Getter ArrayList<String> takenNicknames = new ArrayList<>();
 
@@ -40,7 +42,7 @@ public class Server
 
         try
         {
-            serverSocket = new ServerSocket(999);
+            serverSocket = new ServerSocket(9999);
         } catch (IOException e)
         {
             e.printStackTrace();
@@ -62,14 +64,6 @@ public class Server
         } catch (IOException e)
         {
             e.printStackTrace();
-        }
-    }
-
-    private void sendQuitMessage() // unused
-    {
-        for (Map.Entry<Integer, ClientListener> entry : clientListeners.entrySet())
-        {
-            entry.getValue().sendQuitMessage();
         }
     }
 
@@ -99,8 +93,15 @@ public class Server
         return -1;
     }
 
+    public void addRoom(Room room, int roomID)
+    {
+        rooms.put(roomID, room);
+        roomExecutor.submit(room);
+    }
+
     public void removeRoom(Room room)
     {
+        actualRoomsSize.decrementAndGet();
         rooms.remove(room.getId());
         takenRoomIDs.replace(room.getId(), false);
     }
