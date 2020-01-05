@@ -90,6 +90,7 @@ public class ClientListener implements Runnable
                         }
                         else
                         {
+                            server.getActualRoomsSize().decrementAndGet();
                             out.writeBoolean(false);
                             out.writeUTF("Not enough space for making a new room");
                         }
