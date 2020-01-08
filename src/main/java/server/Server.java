@@ -20,7 +20,6 @@ public class Server
     private @Getter ConcurrentHashMap<Integer, ClientListener> clientListeners = new ConcurrentHashMap<>();
     private @Getter ConcurrentHashMap<Integer, Boolean> takenClientIDs = new ConcurrentHashMap<>();
 
-    private @Getter ExecutorService roomExecutor = Executors.newFixedThreadPool(ROOM_MAX);
     private @Getter ConcurrentHashMap<Integer, Room> rooms = new ConcurrentHashMap<>();
     private @Getter ConcurrentHashMap<Integer, Boolean> takenRoomIDs = new ConcurrentHashMap<>();
     private @Getter AtomicInteger actualRoomsSize = new AtomicInteger(0);
@@ -96,13 +95,12 @@ public class Server
     public void addRoom(Room room, int roomID)
     {
         rooms.put(roomID, room);
-        roomExecutor.submit(room);
     }
 
     public void removeRoom(Room room)
     {
         actualRoomsSize.decrementAndGet();
-        rooms.remove(room.getId());
         takenRoomIDs.replace(room.getId(), false);
+        rooms.remove(room.getId());
     }
 }

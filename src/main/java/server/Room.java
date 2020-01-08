@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Room implements Runnable
+public class Room
 {
     private final Server server;
     private Gson gson = new Gson();
@@ -34,22 +34,6 @@ public class Room implements Runnable
         this.id = id;
         playerExecutor = Executors.newFixedThreadPool(PLAYERS_MAX);
         addPlayer(player);
-    }
-
-    @Override
-    public void run()
-    {
-        try
-        {
-            while (numOfConnectedPlayers > 0)
-            {
-                Thread.sleep(500);
-            }
-        } catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
-        server.removeRoom(this);
     }
 
     public void addPlayer(Player player)
@@ -87,6 +71,11 @@ public class Room implements Runnable
             server.getClientListeners().remove(id);
         }
         numOfConnectedPlayers--;
+        if(numOfConnectedPlayers < 1)
+        {
+            server.removeRoom(this);
+            return;
+        }
         sendServerMessageToAllExcept(player, "Player '" + player.getNickname() + "' left.");
         sendStatusUpdateToAllExcept(player);
         if(player.isDrawing()) // if that player is drawing we clear the paintpanel of other players
